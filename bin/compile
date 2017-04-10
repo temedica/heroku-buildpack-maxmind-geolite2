@@ -49,7 +49,7 @@ if [ ! -f $DB ]; then
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
 
-  gunzip "$MAXMIND_FULL_DB_NAME.mmdb.gz"
+  gunzip $ARCHIVE
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
 
