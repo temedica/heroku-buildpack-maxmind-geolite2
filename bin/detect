@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "MaxMind GeoLite2 Database Installer"
+exit 0

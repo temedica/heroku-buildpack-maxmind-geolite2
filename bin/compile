@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -e # bail if any command fails
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+if [ ! -f "$ENV_DIR/MAXMIND_DB_NAME" ]; then
+  echo "-----> You need to set the environment variable MAXMIND_DB_NAME to either City or Country."
+
+  exit 1
+fi
+
+MAXMIND_DB_NAME=`cat $ENV_DIR/MAXMIND_DB_NAME`
+MAXMIND_FULL_DB_NAME="GeoLite2-$MAXMIND_DB_NAME"
+
+mkdir -p $CACHE_DIR
+
+
+ARCHIVE="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.mmdb.gz"
+CHECKSUM_FILE="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.md5"
+DB="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.mmdb"
+LAST="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.last"
+
+if [ -f $DB ]; then
+  if [ -f $LAST ]; then
+    touch -d '-1 week' limit
+
+    if [ limit -nt $LAST ]; then
+      echo "-----> $MAXMIND_FULL_DB_NAME: Database is older than a week, clearing cache."
+
+      rm $DB
+    fi
+  else
+    echo "-----> $MAXMIND_FULL_DB_NAME: Unable to determine last download time, clearing cache."
+
+    rm $DB
+  fi
+fi
+
+if [ ! -f $DB ]; then
+  if [ ! -f $ARCHIVE ]; then
+    echo "-----> $MAXMIND_FULL_DB_NAME: Database does not exist in cache, downloading."
+
+    curl -o $ARCHIVE -L "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME.gz"
+    curl -o $CHECKSUM_FILE -L "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME.md5"
+  fi
+
+  echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
+
+  gunzip "$MAXMIND_FULL_DB_NAME.mmdb.gz"
+
+  echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
+
+  calculated_checksum = `md5 -q $ARCHIVE`
+  expected_checksum = `cat $CHECKSUM_FILE`
+
+  if [ $calculated_checksum != $expected_checksum ]; then
+    echo "-----> Invalid checksum: expected $expected_checksum, got $calculated_checksum."
+
+    exit 1
+  fi
+
+  touch $LAST
+else
+  echo "-----> $MAXMIND_FULL_DB_NAME: Database already exists in cache."
+fi
+
+OUTPUT="$BUILD_DIR/db"
+
+echo "-----> $MAXMIND_FULL_DB_NAME: Copying $DB to $OUTPUT"
+
+cp $DB $OUTPUT
+
+if [ -f $ARCHIVE ]; then
+  rm $ARCHIVE
+  rm $CHECKSUM_FILE
+fi
