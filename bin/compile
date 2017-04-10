@@ -43,8 +43,10 @@ if [ ! -f $DB ]; then
   if [ ! -f $ARCHIVE ]; then
     echo "-----> $MAXMIND_FULL_DB_NAME: Database does not exist in cache, downloading."
 
-    curl -o $ARCHIVE -L "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME.gz"
-    curl -o $CHECKSUM_FILE -L "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME.md5"
+    url = "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME"
+
+    curl -o $ARCHIVE -L "$url.mmdb.gz"
+    curl -o $CHECKSUM_FILE -L "$url.md5"
   fi
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
