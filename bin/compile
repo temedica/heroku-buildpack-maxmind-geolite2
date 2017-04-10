@@ -43,7 +43,7 @@ if [ ! -f $DB ]; then
   if [ ! -f $ARCHIVE ]; then
     echo "-----> $MAXMIND_FULL_DB_NAME: Database does not exist in cache, downloading."
 
-    url = "http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME"
+    url="http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME"
 
     curl -o $ARCHIVE -L "$url.mmdb.gz"
     curl -o $CHECKSUM_FILE -L "$url.md5"
@@ -55,8 +55,8 @@ if [ ! -f $DB ]; then
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
 
-  calculated_checksum = `md5 -q $ARCHIVE`
-  expected_checksum = `cat $CHECKSUM_FILE`
+  calculated_checksum=`md5 -q $ARCHIVE`
+  expected_checksum=`cat $CHECKSUM_FILE`
 
   if [ $calculated_checksum != $expected_checksum ]; then
     echo "-----> Invalid checksum: expected $expected_checksum, got $calculated_checksum."
