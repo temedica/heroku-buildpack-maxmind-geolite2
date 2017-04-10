@@ -55,7 +55,7 @@ if [ ! -f $DB ]; then
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
 
-  calculated_checksum=`md5 -q $ARCHIVE`
+  calculated_checksum=`openssl md5 $ARCHIVE | egrep -o '([a-f0-9]+)$'`
   expected_checksum=`cat $CHECKSUM_FILE`
 
   if [ $calculated_checksum != $expected_checksum ]; then
