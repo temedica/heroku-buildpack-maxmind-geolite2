@@ -12,6 +12,13 @@ if [ ! -f "$ENV_DIR/MAXMIND_DB_NAME" ]; then
   exit 1
 fi
 
+if [ ! -f "$ENV_DIR/MAXMIND_KEY" ]; then
+  echo "-----> You need to set the environment variable MAXMIND_KEY with your licence key from Maxmind."
+
+  exit 1
+fi
+
+MAXMIND_KEY=`cat $ENV_DIR/MAXMIND_KEY`
 MAXMIND_DB_NAME=`cat $ENV_DIR/MAXMIND_DB_NAME`
 MAXMIND_FULL_DB_NAME="GeoLite2-$MAXMIND_DB_NAME"
 
@@ -43,20 +50,20 @@ if [ ! -f $DB ]; then
   if [ ! -f $ARCHIVE ]; then
     echo "-----> $MAXMIND_FULL_DB_NAME: Database does not exist in cache, downloading."
 
-    url="http://geolite.maxmind.com/download/geoip/database/$MAXMIND_FULL_DB_NAME"
+    url="https://download.maxmind.com/app/geoip_download?edition_id=${MAXMIND_FULL_DB_NAME}&license_key=${MAXMIND_KEY}&suffix=tar.gz"
 
-    curl -o $ARCHIVE -L "$url.mmdb.gz"
+    curl -o $ARCHIVE -L $url
     curl -o $CHECKSUM_FILE -L "$url.md5"
   fi
+
+  echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
+
+  calculated_checksum=`openssl md5 $ARCHIVE | egrep -o '([a-f0-9]+)$'`
+  expected_checksum=`cat $CHECKSUM_FILE`
 
   echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
 
   gunzip $ARCHIVE
-
-  echo "-----> $MAXMIND_FULL_DB_NAME: Comparing checksums"
-
-  calculated_checksum=`openssl md5 $DB | egrep -o '([a-f0-9]+)$'`
-  expected_checksum=`cat $CHECKSUM_FILE`
 
   if [ $calculated_checksum != $expected_checksum ]; then
     echo "-----> Invalid checksum: expected $expected_checksum, got $calculated_checksum."

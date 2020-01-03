@@ -18,6 +18,11 @@ heroku config:add MAXMIND_DB_NAME=City
 heroku config:add MAXMIND_DB_NAME=Country
 ```
 
+Add your licence key, which is now a requirement for downloading even the free databases.
+```
+heroku config:add MAXMIND_KEY=Your-License-key
+```
+
 Then deploy and start using the database.
 
 ## Credits
