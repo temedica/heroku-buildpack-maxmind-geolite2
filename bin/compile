@@ -27,7 +27,7 @@ mkdir -p $CACHE_DIR
 
 ARCHIVE="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.mmdb.gz"
 CHECKSUM_FILE="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.md5"
-DB="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.mmdb"
+DB="$CACHE_DIR/${MAXMIND_FULL_DB_NAME}_*/$MAXMIND_FULL_DB_NAME.mmdb"
 LAST="$CACHE_DIR/$MAXMIND_FULL_DB_NAME.last"
 
 if [ -f $DB ]; then
@@ -61,15 +61,15 @@ if [ ! -f $DB ]; then
   calculated_checksum=`openssl md5 $ARCHIVE | egrep -o '([a-f0-9]+)$'`
   expected_checksum=`cat $CHECKSUM_FILE`
 
-  echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
-
-  gunzip $ARCHIVE
-
   if [ $calculated_checksum != $expected_checksum ]; then
     echo "-----> Invalid checksum: expected $expected_checksum, got $calculated_checksum."
 
     exit 1
   fi
+
+  echo "-----> $MAXMIND_FULL_DB_NAME: Extracting $ARCHIVE"
+
+  gunzip -c $ARCHIVE | tar -x -C $CACHE_DIR -f -
 
   touch $LAST
 else
