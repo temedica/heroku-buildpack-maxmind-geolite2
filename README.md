@@ -27,7 +27,7 @@ Then deploy and start using the database.
 
 ## Credits
 
-(c) 2017 physiovia GmbH
+Forked from physiovia GmbH https://github.com/physiovia/heroku-buildpack-maxmind-geolite2
 
 Heavily inspired by https://github.com/mantisadnetwork/heroku-buildpack-maxmind. Check out this buildpack if you're using the paid versions of MaxMind.
 
